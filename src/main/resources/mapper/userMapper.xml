@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hxx.hxxwork.service.UserMapper">
+    <select id="queryStuList" resultType="com.hxx.hxxwork.pojo.User">
+        SELECT
+            t.id,
+            t.name,
+            t.opinion,
+            z.bname gender,
+            GROUP_CONCAT( c.name ) cnames
+        FROM
+            student t
+                LEFT JOIN clazz AS z ON t.gender = z.id
+                LEFT JOIN stu_cours AS s ON t.id = s.sid
+                LEFT JOIN cours AS c ON c.id = s.cid
+        GROUP BY
+            t.id,
+            t.name,
+            t.opinion,
+            t.gender
+        ORDER BY t.id DESC;
+    </select>
+    <delete id="deleteStu">
+        delete from student where id = #{sid}
+    </delete>
+    <delete id="deleteCours">
+        delete from stu_cours where sid = #{sid}
+    </delete>
+    <select id="querystu" resultType="map">
+        select * from student where id=#{id}
+    </select>
+
+    <select id="queryBj" resultType="map">
+        select bname name,id value from clazz where kind=#{id}
+    </select>
+
+    <select id="queryKc" resultType="map">
+        select name,id value from cours
+    </select>
+
+    <insert id="add">
+        insert  into student(name,gender,opinion) values
+        (#{name},#{gender},#{opinion})
+    </insert>
+    <insert id="batchAdd">
+        insert into stu_cours (sid,cid) values
+        <foreach collection="user.skills" item="a" separator=",">
+            ((select max(id) from student ),#{a})
+        </foreach>
+
+    </insert>
+</mapper>
